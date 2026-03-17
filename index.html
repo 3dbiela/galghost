@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="TemplateData/style.css">
   </head>
   <body>
-  <video id="camera" autoplay playsinline></video>
+  <video id="camera" autoplay playsinline muted></video>
 
 <style>
 #camera{
@@ -145,12 +145,18 @@ background: transparent;
 
       document.body.appendChild(script)
 
-      navigator.mediaDevices.getUserMedia({ video: true })
+      navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" }
+      })
       .then(function(stream){
-      document.getElementById("camera").srcObject = stream;
+        document.getElementById("camera").srcObject = stream;
       })
       .catch(function(err){
-      console.log("camera error",err);
+      // 外カメがない場合（PCなど）は普通のカメラ
+        navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream){
+          document.getElementById("camera").srcObject = stream;
+        });
       });
     </script>
   </body>
