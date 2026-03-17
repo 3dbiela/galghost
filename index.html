@@ -133,31 +133,41 @@ background: transparent;
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
-              }).then((unityInstance) => {
-                loadingBar.style.display = "none";
-                fullscreenButton.onclick = () => {
-                  unityInstance.SetFullscreen(1);
-                };
-              }).catch((message) => {
-                alert(message);
-              });
-            };
+        }).then((unityInstance) => {
+          loadingBar.style.display = "none";
+          fullscreenButton.onclick = () => {
+            unityInstance.SetFullscreen(1);
+          };
+        }).catch((message) => {
+          alert(message);
+        });
+      };
 
       document.body.appendChild(script)
 
-      navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal:"environment"} }
-      })
-      .then(function(stream){
-        document.getElementById("camera").srcObject = stream;
-      })
-      .catch(function(err){
-      // 外カメがない場合（PCなど）は普通のカメラ
-        navigator.mediaDevices.getUserMedia({ video: true })
-        .then(function(stream){
+      async function startCamera() {
+        try {
+          const tempStream = await navigator.mediaDevices.getUserMedia({ video: true });
+          tempStream.getTracks().forEach(track => track.stop());
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          let backCameraId = null;
+          devices.forEach(device => {
+            if (device.kind === "videoinput") {
+              const label = device.label.toLowerCase();
+              if (label.includes("back") || label.includes("rear")) {
+                backCameraId = device.deviceId;
+              }
+            }
+          });
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: backCameraId ? { deviceId: { exact: backCameraId } } : true
+          });
           document.getElementById("camera").srcObject = stream;
-        });
-      });
+        } catch (err) {
+          console.log("camera error", err);
+        }
+      }
+      startCamera();
     </script>
   </body>
 </html>
