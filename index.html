@@ -145,82 +145,14 @@ background: transparent;
 
       document.body.appendChild(script)
 
-      async function startCamera() {
-        try {
-          // まず許可を取得（ラベルを取得するため）
-          const tempStream = await navigator.mediaDevices.getUserMedia({ video: true });
-          tempStream.getTracks().forEach(track => track.stop());
-
-          const devices = await navigator.mediaDevices.enumerateDevices();
-          let backCameraId = null;
-          let frontCameraId = null;
-          const videoInputs = [];
-
-          devices.forEach(device => {
-            if (device.kind === "videoinput") {
-              const label = (device.label || "").toLowerCase();
-              videoInputs.push(device);
-              if (!backCameraId && (label.includes("back") || label.includes("rear") || label.includes("environment"))) {
-                backCameraId = device.deviceId;
-              }
-              if (!frontCameraId && (label.includes("front") || label.includes("user"))) {
-                frontCameraId = device.deviceId;
-              }
-            }
-          });
-
-          // 候補制約を優先順に作成
-          const candidates = [];
-
-          // 1) 外カメの deviceId があれば優先
-          if (backCameraId) {
-            candidates.push({ video: { deviceId: { exact: backCameraId } } });
-          }
-
-          // 2) facingMode exact environment（ブラウザが対応していれば）
-          candidates.push({ video: { facingMode: { exact: "environment" } } });
-
-          // 3) 内カメの deviceId（外カメが無い場合の明示的指定）
-          if (frontCameraId) {
-            candidates.push({ video: { deviceId: { exact: frontCameraId } } });
-          }
-
-          // 4) facingMode ideal user（内カメ優先）
-          candidates.push({ video: { facingMode: { ideal: "user" } } });
-
-          // 5) 最後にデフォルト
-          candidates.push({ video: true });
-
-          let stream = null;
-          for (const c of candidates) {
-            try {
-              stream = await navigator.mediaDevices.getUserMedia(c);
-              if (stream) break;
-            } catch (e) {
-              // OverconstrainedError 等は無視して次の候補へ
-            }
-          }
-
-          // 追加のフォールバック：enumerateDevices に何も入っていない場合は最初の videoinput を選ぶ
-          if (!stream && videoInputs.length) {
-            try {
-              stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: videoInputs[0].deviceId } } });
-            } catch (e) {
-              stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            }
-          }
-
-          if (!stream) {
-            throw new Error("カメラストリームを取得できませんでした");
-          }
-
-          document.getElementById("camera").srcObject = stream;
-        } catch (err) {
-          console.log("camera error", err);
-          unityShowBanner("カメラの起動に失敗しました: " + (err && err.message) , "warning");
+      navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: "environment" }
         }
-      }
-      startCamera();
+      })
+      .then(stream => {
+        document.getElementById("camera").srcObject = stream;
+      });
     </script>
   </body>
 </html>
