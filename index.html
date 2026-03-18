@@ -11,8 +11,10 @@
     <style>
       /* Unity 背景を透明にして固定サイズで表示（スマホ向け：720x1280） */
       #unity-container, #unity-canvas {
-        width: 720px;
-        height: 1280px;
+        position: fixed;
+        inset: 0; /* top:0; right:0; bottom:0; left:0 */
+        width: 100vw;
+        height: 100vh;
       }
       #unity-canvas {
         background: transparent;
@@ -85,7 +87,7 @@
         alpha: true
       };
       // スマホサイズ固定のため devicePixelRatio は触らない（必要なら設定）
-      config.devicePixelRatio = window.devicePixelRatio;
+      // config.devicePixelRatio = window.devicePixelRatio;
 
       loadingBar.style.display = "block";
       canvas.style.background = "transparent";
