@@ -8,23 +8,25 @@
     <link rel="stylesheet" href="TemplateData/style.css">
   </head>
   <body>
-  <video id="camera" autoplay playsinline muted></video>
-
-<style>
-#camera{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-object-fit:cover;
-z-index:-1;
-}
-#unity-canvas {
-background: transparent;
-}
-
-</style>
+  　<video id="camera" autoplay playsinline muted></video>
+　　 <style>
+       #camera{
+　       position:fixed;
+　       top:0;
+　       left:0;
+　       width:100%;
+　       height:100%;
+　       object-fit:cover;
+　       z-index:-1;
+　      }
+       #unity-canvas {
+　       background: transparent; !important;
+　      }
+　      #unity-container, #unity-canvas {
+  　      width: 100%;
+  　      height: 100%;
+        }
+    </style>
     <div id="unity-container" class="unity-desktop">
       <canvas id="unity-canvas" width=720 height=1280 tabindex="-1"></canvas>
       <div id="unity-loading-bar">
@@ -86,6 +88,7 @@ background: transparent;
         showBanner: unityShowBanner,
         alpha:true
       };
+      config.devicePixelRatio = window.devicePixelRatio;
 
       // By default, Unity keeps WebGL canvas render target size matched with
       // the DOM size of the canvas element (scaled by window.devicePixelRatio)
